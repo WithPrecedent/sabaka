@@ -25,10 +25,25 @@ import dataclasses
 import inspect
 import pathlib
 import types
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 import sabaka
 
 
+@dataclasses.dataclass
+class TestClass(object):
+    
+    some_attribute: Optional[Any] = None
+
+
+def test_errors() -> None:
+    instance = TestClass()
+    for attribute in ['some_attribute', 'another_attribute']:
+        try:
+            getattr(instance, attribute)
+        except AttributeError:
+            raise sabaka.NotAttribute(instance, attribute)
+    return
+        
 if __name__ == '__main__':
-    pass
+    test_errors()

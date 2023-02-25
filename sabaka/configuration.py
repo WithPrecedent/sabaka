@@ -26,12 +26,15 @@ ToDo:
 
 """
 from __future__ import annotations
+from collections.abc import Callable
 import dataclasses
+import inspect
+from typing import Any, Optional, Type
 
 
 DEFAULT_ATTRIBUTE: str = 'The passed argument is not an attribute'
 DEFAULT_IMPORT: str = 'The module failed to import (but the file does exist)'
-DEFAILT_RANGE: str = 'The iterable went outside of its range'
+DEFAULT_RANGE: str = 'The iterable went outside of its range'
 DEFAULT_TYPE: str = 'Type check failed'
 DEFAULT_VALIDATION: str = 'Validation check failed'
   
@@ -55,3 +58,34 @@ class MISSING_VALUE(object):
 # MISSING, instance of MISSING_VALUE, should be used for missing values as an 
 # alternative to None. This provides a fuller repr and traceback.
 MISSING = MISSING_VALUE()  
+
+def _get_name(item: Any) -> str:
+    """Creates a str name for 'item' for use in error messages.
+
+    Args:
+        item (Any): item to derive a name for.
+        
+    Raises:
+        ValueError: if a name could not be derived.
+
+    Returns:
+        str: name of 'item'.
+        
+    """
+    if isinstance(item, str):
+        return item
+    elif (
+        hasattr(item, 'name') 
+        and not inspect.isclass(item)
+        and isinstance(item.name, str)):
+        return item.name
+    else:
+        try:
+            return item.__name__
+        except AttributeError:
+            if item.__class__.__name__ is not None:
+                return item.__class__.__name__
+            else:
+                raise ValueError(f'a name could not be created for {item}')
+            
+NAMER: Callable[[Any], str] = _get_name

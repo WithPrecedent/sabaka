@@ -25,6 +25,7 @@ ToDo:
 """
 from __future__ import annotations
 from collections.abc import Callable, Iterable
+import inspect
 from typing import Any, Optional, Type
 
 from . import base
@@ -57,12 +58,12 @@ class ImportFailed(base.DynamicMessage, ImportError):
             str: error message created from passed arguments
             
         """
-        item = item if str else item.__name__
+        item_name = configuration.NAMER(item)
+        importer_name = configuration.NAMER(importer)
         if importer is None:
-            return f'{item} failed to import'
+            return f'{item_name} failed to import'
         else:
-            importer = importer if str else importer.__name__
-            return f'{item} failed to import using {importer}'
+            return f'{item_name} failed to import using {importer_name}'
         
         
 class NotAttribute(base.DynamicMessage, AttributeError):
@@ -80,8 +81,7 @@ class NotAttribute(base.DynamicMessage, AttributeError):
         """Returns an error message based on passed arguments.
 
         Args:
-            item (Any): item or name of the item that of which 'attribute' was
-                found not be an attribute.
+            item (Any): item of which 'attribute' was found not be an attribute.
             attribute (str): name that was found not to be an attribute of 
                 'item'.
         
@@ -89,9 +89,13 @@ class NotAttribute(base.DynamicMessage, AttributeError):
             str: error message created from passed arguments
             
         """
-        base = base if str else base.__name__
-        return f'{attribute} is not an attribute of {base}'
-    
+        base_name = configuration.NAMER(base)
+        if inspect.isclass(base):
+            return f'{base_name} has no attribute named "{attribute}"'  
+        else:  
+            return (
+                f'The {base_name} instance has no attribute named '
+                f'"{attribute}"') 
 
 class NotType(base.DynamicMessage, TypeError):
     """Error for a type check failure.
@@ -116,9 +120,9 @@ class NotType(base.DynamicMessage, TypeError):
             str: error message created from passed arguments
             
         """
-        kind = kind if str else kind.__name__
-        item = item if str else item.__name__
-        return f'{item} is not a {kind}'
+        kind_name = configuration.NAMER(kind)
+        item_name = configuration.NAMER(item)
+        return f'{item_name} is not a {kind_name}'
     
 
 class OutOfRange(base.DynamicMessage, IndexError):
@@ -143,15 +147,14 @@ class OutOfRange(base.DynamicMessage, IndexError):
             str: error message created from passed arguments
             
         """
-        item = item if str else item.__name__
-        length = len(item)
+        item_name = configuration.NAMER(item)
         if index >= 0:
             return (
-                f'{index} is above the range of {item}, which has a maximum '
+                f'The index of {item_name} is at {index}, above the maximum '
                 f'allowable index of {len(item) - 1}')
         else:
             return (
-                f'{index} is below the range of {item}, which has a minimum '
+                f'The index of {item_name} is at {index}, below the minimum '
                 f'allowable index of {-1 * len(item)}')
     
         
@@ -181,10 +184,10 @@ class ValidationFailed(base.DynamicMessage, AttributeError):
             str: error message created from passed arguments
             
         """
-        item = item if str else item.__name__
+        item_name = configuration.NAMER(item)
         if validator is None:
-            return f'{item} failed a check'
+            return f'{item_name} failed a check'
         else:
-            validator = validator if str else validator.__name__
-            return f'{item} failed a check by {validator}'
+            validator_name = configuration.NAMER(validator)
+            return f'{item_name} failed a check by {validator_name}'
          

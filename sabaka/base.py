@@ -49,10 +49,10 @@ class ComposedMessage(abc.ABC):
         
     """
     
-    def __init__(self, message: str, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, **kwargs: Any):
         """Calls the mixed-in Exception class with the appropriate message."""
-        if message is not None:
-            super().__init__(message, *args, **kwargs)
+        if (args and isinstance(list(args)[0], str)) and not kwargs:
+            super().__init__(*args, **kwargs)
         elif args or kwargs:
             super().__init__(self.compose(*args, **kwargs))
         else:
@@ -64,6 +64,11 @@ class ComposedMessage(abc.ABC):
         Subclasses should override this method. But, in the event this method
         is not overridden, a str is returned of the passed args and arguments of
         kwargs.
+        
+        In order for this method to be called and work correctly, the first
+        parameter may NOT be a str type. If it is, the '__init__' method will
+        assume that str is an error message and the 'compose' method will never
+        be called.
         
         Return:
             str: created from args and kwargs.
@@ -89,10 +94,10 @@ class DefaultMessage(abc.ABC):
     """
     default: str | configuration.MISSING_TYPE = configuration.MISSING
     
-    def __init__(self, message: str, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, **kwargs: Any):
         """Calls the mixed-in Exception class with the appropriate message."""
-        if message is not None:
-            super().__init__(message, *args, **kwargs)
+        if len(*args) > 0 and isinstance(list(*args)[0], str):
+            super().__init__(*args, **kwargs)
         elif self.default is not configuration.MISSING:
             super().__init__(self.default)
         else:
@@ -122,10 +127,10 @@ class DynamicMessage(abc.ABC):
     """
     default: str | configuration.MISSING_TYPE = configuration.MISSING
     
-    def __init__(self, message: str, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, **kwargs: Any):
         """Calls the mixed-in Exception class with the appropriate message."""
-        if message is not None:
-            super().__init__(message, *args, **kwargs)
+        if (args and isinstance(list(args)[0], str)) and not kwargs:
+            super().__init__(*args, **kwargs)
         elif args or kwargs:
             super().__init__(self.compose(*args, **kwargs))
         elif self.default is not configuration.MISSING:
@@ -140,6 +145,11 @@ class DynamicMessage(abc.ABC):
         is not overridden, a str is returned of the passed args and arguments of
         kwargs.
         
+        In order for this method to be called and work correctly, the first
+        parameter may NOT be a str type. If it is, the '__init__' method will
+        assume that str is an error message and the 'compose' method will never
+        be called.
+                
         Returns:
             str: created from args and kwargs.
             
