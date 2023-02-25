@@ -97,6 +97,7 @@ class NotAttribute(base.DynamicMessage, AttributeError):
                 f'The {base_name} instance has no attribute named '
                 f'"{attribute}"') 
 
+
 class NotType(base.DynamicMessage, TypeError):
     """Error for a type check failure.
     
@@ -186,8 +187,8 @@ class ValidationFailed(base.DynamicMessage, AttributeError):
         """
         item_name = configuration.NAMER(item)
         if validator is None:
-            return f'{item_name} failed a check'
+            return f'{item_name} failed a validation check'
         else:
             validator_name = configuration.NAMER(validator)
-            return f'{item_name} failed a check by {validator_name}'
+            return f'{item_name} failed a validation check by {validator_name}'
          

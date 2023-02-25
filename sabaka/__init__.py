@@ -18,7 +18,8 @@ License: Apache-2.0
     
     
 ToDo:
-  
+    Figure out how to design unit tests for exceptions and design those tests.
+    
    
 For Developers:
 
